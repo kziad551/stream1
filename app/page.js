@@ -14,7 +14,17 @@ const Page = () => {
 
     ws.onmessage = async (event) => {
       try {
-        const { videoSrc } = JSON.parse(event.data);
+        let data;
+        if (event.data instanceof Blob) {
+          // Convert Blob to text
+          const text = await event.data.text();
+          data = JSON.parse(text); // Parse JSON string
+        } else {
+          // Parse directly if it's already a string
+          data = JSON.parse(event.data);
+        }
+
+        const { videoSrc } = data;
         setVideoSrc(videoSrc);
       } catch (error) {
         console.error('Error processing WebSocket message:', error);
@@ -25,6 +35,10 @@ const Page = () => {
       console.log('WebSocket connection closed in Project Two.');
     };
 
+    ws.onerror = (error) => {
+      console.error('WebSocket error in Project Two:', error);
+    };
+
     return () => {
       ws.close();
     };
@@ -32,20 +46,18 @@ const Page = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-     
+      <h1 className="text-2xl font-bold mb-6">Video Player</h1>
       {videoSrc ? (
-        <div className="w-full max-w-2xl">
-          <iframe
-            width="100%"
-            height="400"
-            src={`https://www.youtube.com/embed/${new URL(videoSrc).searchParams.get('v')}?autoplay=1`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-        </div>
+        <iframe
+          className="w-full max-w-3xl aspect-video border"
+          src={videoSrc.replace('watch?v=', 'embed/')} // Convert to embeddable URL
+          frameBorder="0"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+          title="YouTube Video"
+        ></iframe>
       ) : (
-        <p>No video selected. Click a button in Project One to load a video.</p>
+        <p className="text-gray-500">No video selected.</p>
       )}
     </div>
   );
