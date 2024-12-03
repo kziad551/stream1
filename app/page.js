@@ -6,11 +6,10 @@ const Page = () => {
   const [videoSrc, setVideoSrc] = useState(null); // Set initial state to null
 
   useEffect(() => {
-    // Check if we're running locally or in production
-    const isLocal = window.location.hostname === 'localhost';
-    const wsUrl = isLocal
-      ? 'ws://localhost:8080' // Local WebSocket URL for local development
-      : 'wss://stream1tablet.vercel.app/api/websocket/route.js'; // WebSocket URL for production on Vercel
+    // Dynamically determine protocol and URL
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const hostname = window.location.hostname;
+    const wsUrl = `${protocol}${hostname}/api/websocket/route.js`; // Use relative path
 
     const ws = new WebSocket(wsUrl);
 
@@ -42,6 +41,9 @@ const Page = () => {
 
     ws.onerror = (error) => {
       console.error('WebSocket error in Project Two:', error);
+      if (error instanceof ErrorEvent) {
+        console.error('Error message:', error.message);
+      }
     };
 
     return () => {
