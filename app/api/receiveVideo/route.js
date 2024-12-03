@@ -1,10 +1,8 @@
-// api/receiveVideo/route.js (Serverless function on Vercel)
-
 let videoUrl = null;
 
 // Define allowed origins
 const allowedOrigins = [
-  'https://stream1tablet.vercel.app/', // Local development for project one
+ 
 ];
 
 export async function OPTIONS(req) {

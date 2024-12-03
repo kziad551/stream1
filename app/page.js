@@ -1,9 +1,8 @@
-'use client';
+'use client'
 import { useState, useEffect } from 'react';
 
 const Page = () => {
   const [videoSrc, setVideoSrc] = useState(null);
-  const [pollingInterval, setPollingInterval] = useState(null);
 
   // Fetch the video URL from the backend API
   const fetchVideoUrl = async () => {
@@ -12,7 +11,9 @@ const Page = () => {
       const data = await response.json();
 
       if (data.videoSrc) {
-        setVideoSrc((prev) => (prev !== data.videoSrc ? data.videoSrc : prev)); // Update only if different
+        setVideoSrc(data.videoSrc); // Set the video ID for the iframe
+      } else {
+        console.error('Error fetching video:', data.error);
       }
     } catch (error) {
       console.error('Error fetching video URL:', error);
@@ -20,14 +21,7 @@ const Page = () => {
   };
 
   useEffect(() => {
-    // Start polling the server every 3 seconds
-    const interval = setInterval(fetchVideoUrl, 3000);
-    setPollingInterval(interval);
-
-    return () => {
-      // Clear the polling interval when the component unmounts
-      clearInterval(interval);
-    };
+    fetchVideoUrl(); // Fetch video URL when the page loads
   }, []);
 
   return (
@@ -43,7 +37,7 @@ const Page = () => {
         />
       ) : (
         <div className="w-full h-full bg-black flex items-center justify-center text-white">
-          Waiting for video...
+          Loading video...
         </div>
       )}
     </div>
