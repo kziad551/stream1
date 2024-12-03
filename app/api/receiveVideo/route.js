@@ -1,44 +1,54 @@
-// api/receiveVideo.js (Serverless function on Vercel)
+// api/receiveVideo/route.js (Serverless function on Vercel)
 
 let videoUrl = null;
 
 // Define allowed origins
 const allowedOrigins = [
-  'http://localhost:3000',          // Local development
-  'https://stream1tablet.vercel.app' // Vercel production
+  'https://stream1tablet.vercel.app/', // Local development for project one
 ];
 
-export async function OPTIONS(req, res) {
-  const origin = req.headers.origin;
+export async function OPTIONS(req) {
+  const origin = req.headers.get('origin');
+
+  const headers = {
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    headers['Access-Control-Allow-Origin'] = origin;
   } else {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
+    headers['Access-Control-Allow-Origin'] = '*';
   }
 
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.status(200).end();
+  return new Response(null, {
+    status: 204,
+    headers,
+  });
 }
 
-export async function POST(req, res) {
-  const origin = req.headers.origin;
+export async function POST(req) {
+  const origin = req.headers.get('origin');
+
+  const headers = {
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    headers['Access-Control-Allow-Origin'] = origin;
   } else {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
+    headers['Access-Control-Allow-Origin'] = '*';
   }
-
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
     const { videoSrc } = await req.json();
 
     if (!videoSrc) {
-      return res.status(400).json({ error: 'Video URL is required' });
+      return new Response(
+        JSON.stringify({ error: 'Video URL is required' }),
+        { status: 400, headers }
+      );
     }
 
     const vimeoRegex = /https:\/\/vimeo\.com\/(\d+)/;
@@ -48,34 +58,54 @@ export async function POST(req, res) {
       const videoId = match[1];
       videoUrl = videoId;
     } else {
-      return res.status(400).json({ error: 'Invalid Vimeo URL' });
+      return new Response(
+        JSON.stringify({ error: 'Invalid Vimeo URL' }),
+        { status: 400, headers }
+      );
     }
 
-    return res.status(200).json({ message: 'Video URL received', videoSrc });
+    return new Response(
+      JSON.stringify({ message: 'Video URL received', videoSrc }),
+      { status: 200, headers }
+    );
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return new Response(
+      JSON.stringify({ error: 'Internal Server Error' }),
+      { status: 500, headers }
+    );
   }
 }
 
-export async function GET(req, res) {
-  const origin = req.headers.origin;
+export async function GET(req) {
+  const origin = req.headers.get('origin');
+
+  const headers = {
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 
   if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    headers['Access-Control-Allow-Origin'] = origin;
   } else {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
+    headers['Access-Control-Allow-Origin'] = '*';
   }
-
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
     if (!videoUrl) {
-      return res.status(404).json({ error: 'No video URL stored' });
+      return new Response(
+        JSON.stringify({ error: 'No video URL stored' }),
+        { status: 404, headers }
+      );
     }
 
-    return res.status(200).json({ videoSrc: videoUrl });
+    return new Response(
+      JSON.stringify({ videoSrc: videoUrl }),
+      { status: 200, headers }
+    );
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return new Response(
+      JSON.stringify({ error: 'Internal Server Error' }),
+      { status: 500, headers }
+    );
   }
 }
