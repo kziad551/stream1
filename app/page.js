@@ -6,12 +6,7 @@ const Page = () => {
   const [videoSrc, setVideoSrc] = useState(null); // Set initial state to null
 
   useEffect(() => {
-    // Dynamically determine protocol and URL
-    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const hostname = window.location.hostname;
-    const wsUrl = `${protocol}${hostname}/api/websocket/route.js`; // Use relative path
-
-    const ws = new WebSocket(wsUrl);
+    const ws = new WebSocket('ws://localhost:8080'); // WebSocket server URL
 
     ws.onopen = () => {
       console.log('WebSocket connection established in Project Two.');
@@ -41,9 +36,6 @@ const Page = () => {
 
     ws.onerror = (error) => {
       console.error('WebSocket error in Project Two:', error);
-      if (error instanceof ErrorEvent) {
-        console.error('Error message:', error.message);
-      }
     };
 
     return () => {
@@ -64,7 +56,7 @@ const Page = () => {
           title="Vimeo Video"
         ></iframe>
       ) : (
-        <div className="w-full h-full bg-black"></div> // Black placeholder
+        <div className="w-full h-full bg-black"></div> // Black placeholder if no video
       )}
     </div>
   );
