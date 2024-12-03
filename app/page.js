@@ -1,62 +1,44 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+'use client'
+import { useState, useEffect } from 'react';
 
 const Page = () => {
-  const [videoSrc, setVideoSrc] = useState(null); // Set initial state to null
+  const [videoSrc, setVideoSrc] = useState(null);
+
+  // Fetch the video URL from the backend API
+  const fetchVideoUrl = async () => {
+    try {
+      const response = await fetch('/api/receiveVideo');
+      const data = await response.json();
+
+      if (data.videoSrc) {
+        setVideoSrc(data.videoSrc); // Set the video ID for the iframe
+      } else {
+        console.error('Error fetching video:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching video URL:', error);
+    }
+  };
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080'); // WebSocket server URL
-
-    ws.onopen = () => {
-      console.log('WebSocket connection established in Project Two.');
-    };
-
-    ws.onmessage = async (event) => {
-      try {
-        let data;
-        if (event.data instanceof Blob) {
-          const text = await event.data.text();
-          data = JSON.parse(text);
-        } else {
-          data = JSON.parse(event.data);
-        }
-
-        const { videoSrc } = data;
-        const vimeoEmbedUrl = videoSrc.replace('vimeo.com/', 'player.vimeo.com/video/');
-        setVideoSrc(`${vimeoEmbedUrl}?autoplay=1`); // Set the video source
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed in Project Two.');
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error in Project Two:', error);
-    };
-
-    return () => {
-      ws.close();
-    };
+    fetchVideoUrl(); // Fetch video URL when the page loads
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-screen w-screen bg-black">
-      {/* Conditionally render iframe only when videoSrc is available */}
+    <div className="flex items-center justify-center h-screen bg-black">
       {videoSrc ? (
         <iframe
           className="w-full h-full"
-          src={videoSrc}
+          src={`https://player.vimeo.com/video/${videoSrc}?autoplay=1`}
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
           title="Vimeo Video"
-        ></iframe>
+        />
       ) : (
-        <div className="w-full h-full bg-black"></div> // Black placeholder if no video
+        <div className="w-full h-full bg-black flex items-center justify-center text-white">
+          Loading video...
+        </div>
       )}
     </div>
   );
