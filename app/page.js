@@ -6,8 +6,13 @@ const Page = () => {
   const [videoSrc, setVideoSrc] = useState(null); // Set initial state to null
 
   useEffect(() => {
-    // Connect to the WebSocket server at the deployed URL for Project One
-    const ws = new WebSocket('ws://stream1tablet.vercel.app/api/websocket/route.js'); // Update with correct WebSocket URL
+    // Check if we're running locally or in production
+    const isLocal = window.location.hostname === 'localhost';
+    const wsUrl = isLocal
+      ? 'ws://localhost:8080' // Local WebSocket URL for local development
+      : 'wss://stream1tablet.vercel.app/api/websocket/route.js'; // WebSocket URL for production on Vercel
+
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       console.log('WebSocket connection established in Project Two.');
@@ -23,7 +28,6 @@ const Page = () => {
           data = JSON.parse(event.data);
         }
 
-        // Parse the video source from the incoming message
         const { videoSrc } = data;
         const vimeoEmbedUrl = videoSrc.replace('vimeo.com/', 'player.vimeo.com/video/');
         setVideoSrc(`${vimeoEmbedUrl}?autoplay=1`); // Set the video source
