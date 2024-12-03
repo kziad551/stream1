@@ -2,24 +2,38 @@
 
 let videoUrl = null;
 
-// Get the allowed origin based on the environment
-const allowedOrigin = process.env.NODE_ENV === 'production' 
-  ? 'https://your-vercel-deployment-url.vercel.app'  // Replace with your actual Vercel production URL
-  : 'http://localhost:3000';  // For local development
+// Define allowed origins
+const allowedOrigins = [
+  'http://localhost:3000',          // Local development
+  'https://stream1tablet.vercel.app' // Vercel production
+];
 
 export async function OPTIONS(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.status(200).end();
 }
 
 export async function POST(req, res) {
-  // CORS headers for the POST request
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
+
   try {
     const { videoSrc } = await req.json();
 
@@ -44,8 +58,14 @@ export async function POST(req, res) {
 }
 
 export async function GET(req, res) {
-  // CORS headers for the GET request
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
