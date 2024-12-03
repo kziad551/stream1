@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 const Page = () => {
-  const [videoSrc, setVideoSrc] = useState('');
+  const [videoSrc, setVideoSrc] = useState(null); // Set initial state to null
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8080');
@@ -16,16 +16,15 @@ const Page = () => {
       try {
         let data;
         if (event.data instanceof Blob) {
-          // Convert Blob to text
           const text = await event.data.text();
-          data = JSON.parse(text); // Parse JSON string
+          data = JSON.parse(text);
         } else {
-          // Parse directly if it's already a string
           data = JSON.parse(event.data);
         }
 
         const { videoSrc } = data;
-        setVideoSrc(videoSrc);
+        const vimeoEmbedUrl = videoSrc.replace('vimeo.com/', 'player.vimeo.com/video/');
+        setVideoSrc(`${vimeoEmbedUrl}?autoplay=1`); // Set the video source
       } catch (error) {
         console.error('Error processing WebSocket message:', error);
       }
@@ -45,19 +44,19 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold mb-6">Video Player</h1>
+    <div className="flex items-center justify-center h-screen w-screen bg-black">
+      {/* Conditionally render iframe only when videoSrc is available */}
       {videoSrc ? (
         <iframe
-          className="w-full max-w-3xl aspect-video border"
-          src={videoSrc.replace('watch?v=', 'embed/')} // Convert to embeddable URL
+          className="w-full h-full"
+          src={videoSrc}
           frameBorder="0"
-          allow="autoplay; encrypted-media"
+          allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
-          title="YouTube Video"
+          title="Vimeo Video"
         ></iframe>
       ) : (
-        <p className="text-gray-500">No video selected.</p>
+        <div className="w-full h-full bg-black"></div> // Black placeholder
       )}
     </div>
   );
