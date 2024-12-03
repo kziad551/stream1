@@ -6,7 +6,12 @@ const Page = () => {
   const [videoSrc, setVideoSrc] = useState(null); // Set initial state to null
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080');
+    // Connect to the WebSocket server (localhost for local development)
+    const wsUrl = process.env.NODE_ENV === 'production' 
+      ? 'wss://stream1tablet.vercel.app/api/websocket/route.js' 
+      : 'ws://localhost:8080'; // For local development
+
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       console.log('WebSocket connection established in Project Two.');
