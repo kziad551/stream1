@@ -21,7 +21,7 @@ const Page = () => {
   useEffect(() => {
     fetchVideoUrl();
 
-    const interval = setInterval(fetchVideoUrl, 2000); // Poll every 2 seconds
+    const interval = setInterval(fetchVideoUrl, 100); // Poll every 2 seconds
     return () => clearInterval(interval); // Cleanup the interval
   }, []);
 
